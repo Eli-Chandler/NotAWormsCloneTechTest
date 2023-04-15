@@ -21,10 +21,12 @@ class MyGame(arcade.Window):
 
     def __init__(self):
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-        self.block_list = arcade.ShapeElementList()
+        self.block_list = arcade.SpriteList()
+
+
 
     def setup(self):
-        Block(SCREEN_WIDTH//2, SCREEN_HEIGHT//2, SCREEN_WIDTH, SCREEN_HEIGHT, self.block_list)
+        block = Block(SCREEN_WIDTH//2, SCREEN_HEIGHT//2, SCREEN_WIDTH, SCREEN_HEIGHT, self.block_list)
 
     def on_draw(self):
         arcade.start_render()
@@ -32,9 +34,8 @@ class MyGame(arcade.Window):
         self.block_list.draw()
 
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int):
-        for shape in self.block_list:
-            if shape.
-        print(cards)
+        for hit in arcade.get_sprites_at_point((x, y), self.block_list):
+            hit.subdivide()
 
 
 def main():
