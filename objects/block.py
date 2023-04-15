@@ -9,7 +9,6 @@ textures = []
 
 class Block(arcade.Sprite):
     def __init__(self, center_x, center_y, screen_width, screen_height, block_list, scale=1, depth=0):
-        print(center_x, center_y)
         self.screen_width = screen_width
         self.screen_height = screen_height
 
