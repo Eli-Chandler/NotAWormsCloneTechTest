@@ -17,23 +17,22 @@ class Explosion(arcade.Sprite):
 
         texture = textures.get(str(self.explosion_color), self.create_texture())
 
-        super().__init__(center_x=center_x, center_y=center_y, texture=texture, scale=self.explosion_size, hit_box_algorithm='Detailed')
+        super().__init__(center_x=center_x, center_y=center_y, texture=texture, scale=self.explosion_size, hit_box_algorithm='Detailed', hit_box_detail=100)
+
         self.explosion_list.append(self)
         self.alpha=100
+        self.hit_list = []
 
     def check_sprite_fully_outside(self, sprite):
-        bottom_left = (sprite.left, sprite.bottom)
-        bottom_right = (sprite.right, sprite.bottom)
-        top_left = (sprite.left, sprite.top)
-        top_right = (sprite.right, sprite.top)
+        # Calculate the closest point on the sprite's bounding box to the circle's center
+        closest_x = max(sprite.left, min(self.center_x, sprite.right))
+        closest_y = max(sprite.bottom, min(self.center_y, sprite.top))
 
-        points = [bottom_left, bottom_right, top_left, top_right]
+        # Calculate the distance between the closest point and the circle's center
+        distance_squared = (closest_x - self.center_x) ** 2 + (closest_y - self.center_y) ** 2
 
-        for point in points:
-            distance_from_center = abs(((point[0] - self.center_x)**2 + (point[1] - self.center_y)**2)) ** 0.5
-            if distance_from_center < self.width/2:
-                return False
-        return True
+        # Check if the distance is greater than the circle's radius squared
+        return distance_squared > (self.width / 2) ** 2
 
 
     def check_sprite_fully_encompassed(self, sprite):
@@ -45,7 +44,7 @@ class Explosion(arcade.Sprite):
         points = [bottom_left, bottom_right, top_left, top_right]
 
         for point in points:
-            distance_from_center = abs(((point[0] - self.center_x)**2 + (point[1] - self.center_y)**2)) ** 0.5
+            distance_from_center = ((point[0] - self.center_x)**2 + (point[1] - self.center_y)**2) ** 0.5
             if distance_from_center > self.width/2:
                 return False
         return True
@@ -56,23 +55,27 @@ class Explosion(arcade.Sprite):
     def explode(self):
         hits = arcade.check_for_collision_with_list(self, self.block_list)
 
-        if not hits:
-            self.explosion_list.remove(self)
+        num_subdivided = 0
 
         for hit in hits:
             if self.check_sprite_fully_encompassed(hit):
                 self.block_list.remove(hit)
+            elif self.check_sprite_fully_outside(hit):
+                continue
             else:
                 hit.subdivide()
+                num_subdivided += 1
 
-        arcade.pause(1)
+        if num_subdivided == 0:
+            self.destroy()
+
 
     def destroy(self):
-        pass
+        self.explosion_list.remove(self)
 
     def create_texture(self):
         # create a new image with white background
-        image = Image.new('RGBA', (TEXTURE_SIZE+2, TEXTURE_SIZE), (255, 255, 255, 0))
+        image = Image.new('RGBA', (TEXTURE_SIZE, TEXTURE_SIZE), (255, 255, 255, 0))
 
 
         # create a drawing context
@@ -86,8 +89,6 @@ class Explosion(arcade.Sprite):
 
         # draw a black circle centered in the image
         draw.ellipse((center_x - radius, center_y - radius, center_x + radius, center_y + radius), fill=self.explosion_color)
-
-        image.save('testimage.png')
 
         texture = arcade.Texture(str(self.explosion_color), image=image)
 

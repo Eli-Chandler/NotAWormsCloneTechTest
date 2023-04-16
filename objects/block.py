@@ -22,7 +22,6 @@ class Block(arcade.Sprite):
         texture = random.choice(textures)
 
         super().__init__(center_x=center_x, center_y=center_y, scale=scale, texture=texture)
-        self.use_spatial_hash = True
         self.color = arcade.color.WHITE
         self.block_list.append(self)
 

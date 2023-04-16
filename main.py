@@ -17,7 +17,7 @@ class MyGame(arcade.Window):
 
     def __init__(self):
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-        self.block_list = arcade.SpriteList()
+        self.block_list = arcade.SpriteList(use_spatial_hash=True)
         self.explosion_list = arcade.SpriteList()
 
     def setup(self):
@@ -30,7 +30,8 @@ class MyGame(arcade.Window):
     def on_draw(self):
         arcade.start_render()
         self.block_list.draw()
-        self.explosion_list.draw()
+        for explosion in self.explosion_list:
+            explosion.draw()
 
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int):
         '''for hit in arcade.get_sprites_at_point((x, y), self.block_list):
