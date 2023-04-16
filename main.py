@@ -29,7 +29,6 @@ class MyGame(arcade.Window):
 
     def on_draw(self):
         arcade.start_render()
-        self.clear()
         self.block_list.draw()
         self.explosion_list.draw()
 
@@ -39,7 +38,7 @@ class MyGame(arcade.Window):
         self.create_explosion_at_mouse(x, y)
 
     def create_explosion_at_mouse(self, mouse_x, mouse_y):
-        explosion = Explosion(mouse_x, mouse_y, 1, self.explosion_list, self.block_list)
+        explosion = Explosion(mouse_x, mouse_y, 10, self.explosion_list, self.block_list)
 
 
 

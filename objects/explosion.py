@@ -19,7 +19,22 @@ class Explosion(arcade.Sprite):
 
         super().__init__(center_x=center_x, center_y=center_y, texture=texture, scale=self.explosion_size, hit_box_algorithm='Detailed')
         self.explosion_list.append(self)
-        #self.set_hit_box('detailed')
+        self.alpha=100
+
+    def check_sprite_fully_outside(self, sprite):
+        bottom_left = (sprite.left, sprite.bottom)
+        bottom_right = (sprite.right, sprite.bottom)
+        top_left = (sprite.left, sprite.top)
+        top_right = (sprite.right, sprite.top)
+
+        points = [bottom_left, bottom_right, top_left, top_right]
+
+        for point in points:
+            distance_from_center = abs(((point[0] - self.center_x)**2 + (point[1] - self.center_y)**2)) ** 0.5
+            if distance_from_center < self.width/2:
+                return False
+        return True
+
 
     def check_sprite_fully_encompassed(self, sprite):
         bottom_left = (sprite.left, sprite.bottom)
@@ -29,33 +44,35 @@ class Explosion(arcade.Sprite):
 
         points = [bottom_left, bottom_right, top_left, top_right]
 
-        for p in points:
-            if (self.center_x - p[0]) ** 2 + (self.center_y - p[1]) ** 2 > self.width/2 ** 2:
+        for point in points:
+            distance_from_center = abs(((point[0] - self.center_x)**2 + (point[1] - self.center_y)**2)) ** 0.5
+            if distance_from_center > self.width/2:
                 return False
         return True
-
-
 
     def update(self):
         self.explode()
 
     def explode(self):
         hits = arcade.check_for_collision_with_list(self, self.block_list)
-        if hits:
-            for hit in hits:
-                if self.check_sprite_fully_encompassed(hit):
-                    self.block_list.remove(hit)
-                else:
-                    hit.subdivide()
-        else:
+
+        if not hits:
             self.explosion_list.remove(self)
+
+        for hit in hits:
+            if self.check_sprite_fully_encompassed(hit):
+                self.block_list.remove(hit)
+            else:
+                hit.subdivide()
+
+        arcade.pause(1)
 
     def destroy(self):
         pass
 
     def create_texture(self):
         # create a new image with white background
-        image = Image.new('RGBA', (TEXTURE_SIZE+2, TEXTURE_SIZE+2), (255, 255, 255, 0))
+        image = Image.new('RGBA', (TEXTURE_SIZE+2, TEXTURE_SIZE), (255, 255, 255, 0))
 
 
         # create a drawing context
