@@ -12,14 +12,16 @@ import random
 
 class Player(arcade.Sprite):
     def __init__(self, center_x, center_y, camera):
-
-
+        self.weapon = None
         super().__init__('textures/player.png', center_x=center_x, center_y=center_y, hit_box_algorithm='Simple', scale=0.5)
         self.get_hit_box()
         self.direction = 0
 
     def update(self):
+        if self.weapon:
+            self.weapon.update_position_and_angle()
         self.change_x = MOVEMENT_SPEED * self.direction
+
 
     def jump(self):
         self.change_y = JUMP_SPEED

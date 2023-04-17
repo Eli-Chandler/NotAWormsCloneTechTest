@@ -2,6 +2,7 @@ import arcade
 from objects.block import Block
 from objects.explosion import Explosion
 from objects.player import Player
+from objects import weapon
 import math
 #from objects.player.player import Player
 
@@ -30,6 +31,9 @@ class MyGame(arcade.Window):
         block = Block(SCREEN_WIDTH//2, SCREEN_HEIGHT//2, SCREEN_WIDTH, SCREEN_HEIGHT, self.block_list)
 
         self.player = Player(SCREEN_WIDTH//2, SCREEN_HEIGHT//2, self.camera)
+
+
+
         self.player_list = arcade.SpriteList()
         self.player_list.append(self.player)
 
@@ -43,6 +47,11 @@ class MyGame(arcade.Window):
         self.reticle_list.append(self.reticle)
         self.update_reticle_position(0, 0)
 
+        self.bullet_list = arcade.SpriteList()
+
+        self.player.weapon = weapon.AK47(self.player, self.reticle)
+        self.weapon_list = arcade.SpriteList()
+        self.weapon_list.append(self.player.weapon)
 
     def on_update(self, delta_time: float):
         x, y = self.convert_viewport_coordinates_to_global(self.mouse_x, self.mouse_y)
@@ -50,6 +59,8 @@ class MyGame(arcade.Window):
         self.explosion_list.update()
         self.physics_engine.update()
         self.player.update()
+        self.bullet_list.update()
+
         #self.player_list.update()
 
     def on_draw(self):
@@ -59,10 +70,11 @@ class MyGame(arcade.Window):
 
         self.block_list.draw()
         self.player_list.draw()
-        self.reticle_list.draw()
         for explosion in self.explosion_list:
             explosion.draw()
-
+        self.reticle_list.draw()
+        self.weapon_list.draw()
+        self.bullet_list.draw()
 
     def convert_viewport_coordinates_to_global(self, x, y):
         left, right, bottom, top = self.get_viewport()
@@ -107,6 +119,7 @@ class MyGame(arcade.Window):
         print(self.convert_viewport_coordinates_to_global(x, y))
         x, y = self.convert_viewport_coordinates_to_global(x, y)
         self.create_explosion_at_position(x, y, 5)
+        self.player.weapon.shoot()
 
     def create_explosion_at_position(self, x, y, size=5):
         explosion = Explosion(x, y, size, self.explosion_list, self.block_list)
